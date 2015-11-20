@@ -58,9 +58,13 @@ Conteúdo do arquivo hosts
 ```
 [web]
 192.168.100.135
+192.168.100.136
+192.168.100.137
 	
 [database]
 192.168.100.150
+192.168.100.156
+192.168.100.157
 ```
 	
 Pode ser organizado por hosts e/ou grupos, possibilitando por exemplo a segregação de variáveis por ambiente ambiente por exmemplo
