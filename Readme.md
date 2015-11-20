@@ -30,11 +30,15 @@ vagrant ssh
 
  1. Inventory
  2. Module
- 3. Roles
- 4. Playbook
- 5. Vars
- 6. Tasks
- 7. Handlers
+ 3. Playbook
+ 4. Roles
+     1. Defaults Vars
+     2. Files
+     3. Handlers
+     4. Meta
+     5. Tasks
+     6. Templates
+     7. Vars
  
 
  
@@ -138,11 +142,84 @@ Categorias de módulos existentes atualmente:
 	
 É onde a coisa acontece :)
 
-Onde são escritas as Tasks, criadas variáveis, condicionais, etc.
+Onde são escritas as Tasks, referenciadas as roles, criadas variáveis, condicionais, etc. É basicamente arquivo de script.
 
-Anatomia de um playbook
+Anatomia de um playbook:
+
+![solarized palette](img/anatomia-playbook.png)
+
+
+###### Exemplos de playbooks
+
+```
+---
+- hosts: all
+  sudo : yes
+
+  vars:
+    yum_conf: /etc/yum.conf
+    yum_endereco_proxy: proxy.meudominio.com.br
+    yum_porta_proxy: 3128
+
+  tasks:
+    - name: Configurar proxy no yum
+      lineinfile: dest='{{ yum_conf }}' regexp='^proxy=' line='proxy=http://{{ yum_endereco_proxy }}:{{ yum_porta_proxy }}'
+
+```
+
+```
+---
+- hosts: localhost
+  gather_facts: no
+
+  vars_prompt:
+
+    - name: vcenter_endereco
+      prompt: Endereco do vcenter onde a maquina sera criada
+      private: no
+      default: vcenter.enderecodovcenter.com
+
+    - name: vcenter_usuario
+      prompt: Usuario para acessar o vcenter para criar a máquina
+      private: no
+
+    - name: vcenter_senha
+      prompt: Senha para acessar o vcenter
+      private: yes
+
+  roles:
+    - { role: geerlingguy.mysql, tags: mysql }
+```
 
 
 
+##### Roles
 
 
+São os componentes reutilizáveis em outros projetos nossos ou de terceiros.
+
+Onde se encapsula o código repetitivo, que seria escrito várias vezes, por exemplo, configurar o proxy no yum, apesar do código ser bem simples:
+
+```
+- lineinfile: dest='/etc/yum.conf' regexp='^proxy=' line='proxy=http://proxy.meudominio.com.br'
+```
+
+O ideal é encapsular isso em uma Role, pois além de tornar o código mais simples, possibilita a manutenção mais fácil.
+
+Exemplo da utilização de várias roles em um playbook típico:
+
+```
+---
+- hosts: all
+  sudo : yes
+
+  roles:
+    - { role: rsvalerio.pacote, tags: pacote }
+    - { role: rsvalerio.rede, tags: rede }
+    - { role: rsvalerio.localizacao, tags: localizacao }
+    - { role: rsvalerio.ntp, tags: ntp }
+    - { role: rsvalerio.firewall, tags: firewall }
+    - { role: rsvalerio.syslog, tags: syslog }
+    - { role: rsvalerio.java, tags: java }
+    - { role: yum, tags: yum }
+```
