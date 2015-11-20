@@ -1,0 +1,2 @@
+10.20.200.5   ansible_ssh_private_key_file=.vagrant/machines/maquina1/virtualbox/private_key  ansible_ssh_user=vagrant
+10.20.200.14  ansible_ssh_private_key_file=.vagrant/machines/maquina2/virtualbox/private_key  ansible_ssh_user=vagrant
